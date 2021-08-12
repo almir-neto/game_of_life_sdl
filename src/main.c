@@ -80,14 +80,13 @@ void processInput(){
                 apply_rules();
             break;
         case SDL_MOUSEBUTTONDOWN:
-            i = (event.motion.x / BOX_SIZE) * BOX_SIZE;
-            j = (event.motion.y / BOX_SIZE) * BOX_SIZE;
+            SDL_GetMouseState(&i, &j);
             i = i - 1; 
             j = j - 1;
-            if(grid[i/BOX_SIZE+1][j/BOX_SIZE+1].active){
-                grid[i/BOX_SIZE+1][j/BOX_SIZE+1].active = false;
+            if(grid[i/BOX_SIZE][j/BOX_SIZE].active){
+                grid[i/BOX_SIZE][j/BOX_SIZE].active = false;
             }else{
-                grid[i/BOX_SIZE+1][j/BOX_SIZE+1].active = true;
+                grid[i/BOX_SIZE][j/BOX_SIZE].active = true;
             }
             break;
     }
