@@ -3,3 +3,5 @@
 - [ ] Button to choose between ifnite map mode and double tail map mode.
 - [ ] Implement infinite screen (** need stack resizable)
 - [x] Implement double tail scree
+- [ ] Implement selector/creator of boilerplate
+- [ ] Document how to use
