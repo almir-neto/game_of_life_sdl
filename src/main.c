@@ -10,28 +10,37 @@ typedef struct {
     bool active;
 } tile_t;
 
+typedef struct{
+    size_t i;
+    size_t j;
+    bool active;
+} action_tile;
+
 //GLOBAL VARIABLES
 SDL_Window* window = NULL; 
 SDL_Renderer* renderer = NULL;
 tile_t grid[WIDTH/BOX_SIZE][HEIGHT/BOX_SIZE];
 
-int game_is_running = FALSE;
+int game_is_running = false;
 int last_frame_time = 0;
 int time_to_wait = 0;
 float delta_time = 0;
-bool action_queue[WIDTH * HEIGHT];
 int safe_index(int possible_invalid_index, int max_index);
+action_tile stack_action[200];
+size_t stack_index = 0;
 
 //FUNCTIONS DEFINITIONS
 void apply_rules();
 tile_t* neighborhood(int i, int j);
 size_t count_neighbors(tile_t* neighborhood);
+void push_action(action_tile action);
+void pop_action();
 
 //GAME OF LIFE LOGIC
 int initializeWindow(void){
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
         fprintf(stderr, "Fail to init SDL!\n");
-        return FALSE;
+        return false;
     }
     window = SDL_CreateWindow(
             NULL, 
@@ -43,7 +52,7 @@ int initializeWindow(void){
 
     if(!window){
         fprintf(stderr, "Fail to create a window.");
-        return FALSE;
+        return false;
     }
 
     renderer = SDL_CreateRenderer(window, -1, 0);
@@ -107,6 +116,11 @@ void update(){
 //    delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
 //
 //    last_frame_time = SDL_GetTicks();
+    int i;
+    for(i = 0; i < stack_index; i++){
+        grid[stack_action[i].i][stack_action[i].j].active = stack_action[i].active;
+    }
+    stack_index = 0;
 }
 
 void render(){
@@ -136,11 +150,23 @@ void apply_rules(){
     int i, j;
     for(i = 0; i < WIDTH-1; i+= BOX_SIZE){ 
         for(j = 0; j < HEIGHT-1; j+= BOX_SIZE){ 
-            printf("%i-%i\n", i/BOX_SIZE, j/BOX_SIZE);
             tile_t* neighbors = neighborhood(i/BOX_SIZE, j/BOX_SIZE); 
             size_t alives_neighbors = count_neighbors(neighbors);
-            if(alives_neighbors == 0)
-                grid[i/BOX_SIZE][j/BOX_SIZE].active = false;
+            action_tile tmp = {
+                i/BOX_SIZE,
+                j/BOX_SIZE,
+                false
+            };
+            if(alives_neighbors < 2 && grid[i/BOX_SIZE][j/BOX_SIZE].active){
+                tmp.active = false;
+                push_action(tmp);
+            }else if(alives_neighbors > 3 && grid[i/BOX_SIZE][j/BOX_SIZE].active){
+                tmp.active = false;
+                push_action(tmp);
+            }else if(alives_neighbors == 3 && !grid[i/BOX_SIZE][j/BOX_SIZE].active){
+                tmp.active = true;
+                push_action(tmp);
+            }
         }
     }
 }
@@ -160,7 +186,7 @@ tile_t* neighborhood(int i, int j){
     result[4] = grid[safe_index(i, WIDTH/BOX_SIZE)][safe_index(j+1, HEIGHT/BOX_SIZE)];
     result[5] = grid[safe_index(i-1, WIDTH/BOX_SIZE)][safe_index(j+1, HEIGHT/BOX_SIZE)];
     result[6] = grid[safe_index(i-1, WIDTH/BOX_SIZE)][safe_index(j, HEIGHT/BOX_SIZE)];
-    result[7] = grid[safe_index(i-1, WIDTH/BOX_SIZE)][safe_index(j+1, HEIGHT/BOX_SIZE)];
+    result[7] = grid[safe_index(i-1, WIDTH/BOX_SIZE)][safe_index(j-1, HEIGHT/BOX_SIZE)];
 
     return result;
 }
@@ -183,6 +209,17 @@ int safe_index(int possible_invalid_index, int max_index){
     return possible_invalid_index;
 }
 
+void push_action(action_tile action){
+    printf("Pushing in index: %li\n", stack_index);
+    stack_action[stack_index] = action;
+    stack_index = stack_index + 1;
+    if(stack_index > 200)
+        stack_index = 0;
+}
+
+void pop_action(){
+    stack_index = stack_index - 1;
+}
 void destroyWindow(){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
