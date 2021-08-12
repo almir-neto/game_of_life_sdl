@@ -1,2 +1,5 @@
 - [ ] Implement stack action with resizable array
 - [ ] Create buttons in screen to autorun, step by step, accelerate and deaccelerate
+- [ ] Button to choose between ifnite map mode and double tail map mode.
+- [ ] Implement infinite screen (** need stack resizable)
+- [x] Implement double tail scree

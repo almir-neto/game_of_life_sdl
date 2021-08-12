@@ -14,6 +14,7 @@ typedef struct{
     size_t i;
     size_t j;
     bool active;
+    bool show_neighbors;
 } action_tile;
 
 //GLOBAL VARIABLES
@@ -76,8 +77,12 @@ void processInput(){
             if(event.key.keysym.sym == SDLK_ESCAPE)
                 game_is_running = false;
 
-            if(event.key.keysym.sym == SDLK_RIGHT)
+            if(event.key.keysym.sym == SDLK_RIGHT){
+#ifdef _DEBUG
+                stack_index = 0;
+#endif
                 apply_rules();
+            }
             break;
         case SDL_MOUSEBUTTONDOWN:
             SDL_GetMouseState(&i, &j);
@@ -118,8 +123,8 @@ void update(){
     int i;
     for(i = 0; i < stack_index; i++){
         grid[stack_action[i].i][stack_action[i].j].active = stack_action[i].active;
+            
     }
-    stack_index = 0;
 }
 
 void render(){
@@ -130,7 +135,7 @@ void render(){
 
     // AREA PARA O DESENHO DOS OBJETOS DO JOGO
 
-    SDL_SetRenderDrawColor(renderer, 3, 0,200, 100);
+    SDL_SetRenderDrawColor(renderer, 100, 100,100, 100);
     for(i = 0; i < WIDTH-1; i+=BOX_SIZE){
         for(j = 0; j < HEIGHT-1; j+= BOX_SIZE){
             if(grid[i/BOX_SIZE][j/BOX_SIZE].active){
@@ -141,6 +146,45 @@ void render(){
         }
     }
 
+#ifdef _DEBUG
+    for(i=0; i < stack_index; i++){
+        if(stack_action[i].show_neighbors){
+            tile_t* n = neighborhood(stack_action[i].i, stack_action[i].j);
+            for(j=0; j<8; j++){
+                switch(j){
+                    case 0:
+                        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 100);
+                        break;
+                    case 1:
+                        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
+                        break;
+                    case 2:
+                        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+                        break;
+                    case 3:
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 100);
+                        break;
+                    case 4:
+                        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 100);
+                        break;
+                    case 5:
+                        SDL_SetRenderDrawColor(renderer, 255, 0, 255, 100);
+                        break;
+                    case 6:
+                        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 100);
+                        break;
+                    case 7:
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
+                        break;
+                }
+                SDL_RenderFillRect(renderer, &n[j].rectangle);
+            }
+
+        }
+    }
+#else
+    stack_index = 0;
+#endif
     // MOSTRA O BUFFER NA TELA
     SDL_RenderPresent(renderer);
 }
@@ -156,6 +200,11 @@ void apply_rules(){
                 j/BOX_SIZE,
                 false
             };
+#ifdef _DEBUG
+            if(grid[i/BOX_SIZE][j/BOX_SIZE].active)
+                tmp.show_neighbors = true;
+#endif
+
             if(alives_neighbors < 2 && grid[i/BOX_SIZE][j/BOX_SIZE].active){
                 tmp.active = false;
                 push_action(tmp);
@@ -177,14 +226,14 @@ tile_t* neighborhood(int i, int j){
     // 6 * 2
     // 5 4 3
     tile_t* result = (tile_t*)malloc(sizeof(tile_t)*8);
-    result[0] = grid[i][j];   
-    result[0] = grid[i][safe_index(j-1, HEIGHT/BOX_SIZE)];
-    result[1] = grid[safe_index(i+1, WIDTH/BOX_SIZE)][safe_index(j-1, HEIGHT/BOX_SIZE)];
-    result[2] = grid[safe_index(i+1,WIDTH/BOX_SIZE)][j];
+
+    result[0] = grid[safe_index(i-1, WIDTH/BOX_SIZE)][j];
+    result[1] = grid[safe_index(i-1, WIDTH/BOX_SIZE)][safe_index(j+1, HEIGHT/BOX_SIZE)];
+    result[2] = grid[i][safe_index(j+1, HEIGHT/BOX_SIZE)];
     result[3] = grid[safe_index(i+1, WIDTH/BOX_SIZE)][safe_index(j+1, HEIGHT/BOX_SIZE)];
-    result[4] = grid[safe_index(i, WIDTH/BOX_SIZE)][safe_index(j+1, HEIGHT/BOX_SIZE)];
-    result[5] = grid[safe_index(i-1, WIDTH/BOX_SIZE)][safe_index(j+1, HEIGHT/BOX_SIZE)];
-    result[6] = grid[safe_index(i-1, WIDTH/BOX_SIZE)][safe_index(j, HEIGHT/BOX_SIZE)];
+    result[4] = grid[safe_index(i+1, WIDTH/BOX_SIZE)][j];
+    result[5] = grid[safe_index(i+1, WIDTH/BOX_SIZE)][safe_index(j-1, HEIGHT/BOX_SIZE)];
+    result[6] = grid[i][safe_index(j-1, HEIGHT/BOX_SIZE)];
     result[7] = grid[safe_index(i-1, WIDTH/BOX_SIZE)][safe_index(j-1, HEIGHT/BOX_SIZE)];
 
     return result;
@@ -200,12 +249,12 @@ size_t count_neighbors(tile_t* neighbors){
     return counter;
 }
 
-int safe_index(int possible_invalid_index, int max_index){
-    if(possible_invalid_index > max_index)
+int safe_index(int index, int max_index){
+    if(index >= max_index)
         return 0;
-    if(possible_invalid_index < 0)
-        return max_index-1;
-    return possible_invalid_index;
+    if(index < 0)
+        return max_index - 1;
+    return index;
 }
 
 void push_action(action_tile action){
