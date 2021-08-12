@@ -15,7 +15,17 @@ typedef struct{
     size_t j;
     bool active;
     bool show_neighbors;
-} action_tile;
+} action_tile_t;
+
+typedef struct {
+    size_t start;
+    size_t end;
+    size_t current_position;
+    SDL_Rect line;
+    SDL_Rect mark;
+    SDL_Color color_line;
+    SDL_Color color_mark;
+} slider_t;
 
 //GLOBAL VARIABLES
 SDL_Window* window = NULL; 
@@ -25,17 +35,20 @@ tile_t grid[WIDTH/BOX_SIZE][HEIGHT/BOX_SIZE];
 int game_is_running = false;
 int last_frame_time = 0;
 int time_to_wait = 0;
-float delta_time = 0;
 int safe_index(int possible_invalid_index, int max_index);
-action_tile stack_action[200];
+float delta_time = 0;
 size_t stack_index = 0;
+action_tile_t stack_action[200];
+slider_t zoom_slider;
 
 //FUNCTIONS DEFINITIONS
 void apply_rules();
 tile_t* neighborhood(int i, int j);
 size_t count_neighbors(tile_t* neighborhood);
-void push_action(action_tile action);
+void push_action(action_tile_t action);
 void pop_action();
+
+void render_slider(SDL_Renderer* render, slider_t* slider);
 
 //GAME OF LIFE LOGIC
 int initializeWindow(void){
@@ -94,6 +107,19 @@ void processInput(){
                 grid[i/BOX_SIZE][j/BOX_SIZE].active = true;
             }
             break;
+        case SDL_MOUSEWHEEL:
+            if(event.wheel.y < 0){
+                if(zoom_slider.current_position < zoom_slider.end){
+                    zoom_slider.current_position += 5;
+                    zoom_slider.mark.x += 6;
+                }
+            }else if(event.wheel.y > 0){
+                if(zoom_slider.current_position > zoom_slider.start){
+                    zoom_slider.current_position -= 5;
+                    zoom_slider.mark.x -= 6;
+                }
+            }
+            break;
     }
 }
 
@@ -109,6 +135,23 @@ void setup() {
             grid[i/BOX_SIZE][j/BOX_SIZE].active = false;
         }
     }
+
+    // Init slider zoom
+    SDL_Color slide_color = {147, 33, 151};
+    SDL_Color mark_color = {229, 150, 232};
+    SDL_Rect slide_axis = { 70, 70, 500, 5 };
+    SDL_Rect slide_mark = { 70, 60, 5, 25 };
+
+    slider_t zslider = {
+        100, //start
+        500, //end
+        100, //current position
+        slide_axis,
+        slide_mark,
+        slide_color,
+        mark_color
+    };
+    zoom_slider = zslider;
 }
 
 void update(){
@@ -185,6 +228,8 @@ void render(){
 #else
     stack_index = 0;
 #endif
+
+    render_slider(renderer, &zoom_slider);
     // MOSTRA O BUFFER NA TELA
     SDL_RenderPresent(renderer);
 }
@@ -195,7 +240,7 @@ void apply_rules(){
         for(j = 0; j < HEIGHT-1; j+= BOX_SIZE){ 
             tile_t* neighbors = neighborhood(i/BOX_SIZE, j/BOX_SIZE); 
             size_t alives_neighbors = count_neighbors(neighbors);
-            action_tile tmp = {
+            action_tile_t tmp = {
                 i/BOX_SIZE,
                 j/BOX_SIZE,
                 false
@@ -257,7 +302,7 @@ int safe_index(int index, int max_index){
     return index;
 }
 
-void push_action(action_tile action){
+void push_action(action_tile_t action){
     printf("Pushing in index: %li\n", stack_index);
     stack_action[stack_index] = action;
     stack_index = stack_index + 1;
@@ -268,6 +313,28 @@ void push_action(action_tile action){
 void pop_action(){
     stack_index = stack_index - 1;
 }
+
+
+void render_slider(SDL_Renderer *renderer, slider_t* slider){
+    SDL_SetRenderDrawColor(
+            renderer,
+            slider->color_line.r,
+            slider->color_line.g,
+            slider->color_line.b,
+            slider->color_line.a
+            );
+    SDL_RenderFillRect(renderer, &slider->line);
+
+    SDL_SetRenderDrawColor(
+            renderer,
+            slider->color_mark.r,
+            slider->color_mark.g,
+            slider->color_mark.b,
+            slider->color_mark.a
+            );
+    SDL_RenderFillRect(renderer, &slider->mark);
+}
+
 void destroyWindow(){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
