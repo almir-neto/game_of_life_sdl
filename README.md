@@ -1,4 +1,4 @@
-# Another implementation of Conways Game of Life
+# Another implementation of Conway's Game of Life
 
 This game of life is "double tail screen" (the end of corner go to the oposite corner side"). The rules are the same as descripted in wikipedia, [click in this link](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules) to know if you don't know.
 
