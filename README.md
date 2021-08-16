@@ -4,7 +4,7 @@ This game of life is "double tail screen" (the end of corner go to the oposite c
 
 ## Dependencies
 
-For can render 2D graphics was used SDL2 to do the dirty job, you can install directly from most populars package managers. See the official page SDL to get the tutorial instalation, [https://wiki.libsdl.org/Installation](link here).
+For can render 2D graphics was used SDL2 to do the dirty job, you can install directly from most populars package managers. See the official page SDL to get the tutorial instalation, [link here](https://wiki.libsdl.org/Installation).
 
 ## Instalation
 
