@@ -222,7 +222,7 @@ void render(){
                 }
                 SDL_RenderFillRect(renderer, &n[j].rectangle);
             }
-
+            free(n);
         }
     }
 #else
@@ -260,6 +260,8 @@ void apply_rules(){
                 tmp.active = true;
                 push_action(tmp);
             }
+
+            free(neighbors);
         }
     }
 }

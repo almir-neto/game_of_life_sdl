@@ -2,6 +2,7 @@
 - [ ] Create buttons in screen to autorun, step by step, accelerate and deaccelerate
 - [ ] Button to choose between ifnite map mode and double tail map mode.
 - [ ] Implement infinite screen (** need stack resizable)
-- [x] Implement double tail scree
+- [x] Implement double tail screen
 - [ ] Implement selector/creator of boilerplate
-- [ ] Document how to use
+- [x] Document how to use
+- [ ] Sleep while gameloop to reduce cpu consumption 
