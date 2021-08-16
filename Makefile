@@ -1,6 +1,6 @@
 $CC = gcc
 
-build:
+build: 
 	gcc -Wall ./src/*.c -std=c99 -lSDL2 -o game_binary
 
 debug:
