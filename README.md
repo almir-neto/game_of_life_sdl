@@ -6,7 +6,7 @@ This game of life is "double tail screen" (the end of corner go to the oposite c
 
 For can render 2D graphics was used SDL2 to do the dirty job, you can install directly from most populars package managers. See the official page SDL to get the tutorial instalation, [link here](https://wiki.libsdl.org/Installation).
 
-## Instalation
+## Installation
 
 Just let make do their magics, run `make` to compile and `make run` to get your Game of Life on screen. Or if you prefer download the compiled version on releases.
 
