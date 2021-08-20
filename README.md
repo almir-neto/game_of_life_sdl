@@ -25,5 +25,5 @@ For while the game size is hard coded. The grid size default is 640 x 640 with t
 
 ## Known limitations
 
-For apply the rules in all boxes in same time is used a stack to storage what boxes will die, live or stay. The size of this stack is fixed in 200 but easily some patterns can ultrapasses this limit and to avoid memory leaks their are ignored and lost.
+~~For apply the rules in all boxes in same time is used a stack to storage what boxes will die, live or stay. The size of this stack is fixed in 200 but easily some patterns can ultrapasses this limit and to avoid memory leaks their are ignored and lost.
 
