@@ -15,7 +15,7 @@ extern int last_frame_time;
 extern int time_to_wait;
 extern float delta_time;
 extern size_t stack_index;
-extern action_tile_t stack_action[200];
+extern action_tile_t stack_action[WIDTH * HEIGHT];
 extern slider_t zoom_slider;
 
 //GAME OF LIFE LOGIC

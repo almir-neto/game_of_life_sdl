@@ -7,7 +7,7 @@
 extern SDL_Renderer* renderer;
 extern tile_t grid[WIDTH/BOX_SIZE][HEIGHT/BOX_SIZE];
 extern size_t stack_index;
-extern action_tile_t stack_action[200];
+extern action_tile_t stack_action[WIDTH * HEIGHT];
 extern slider_t zoom_slider;
 
 void apply_rules(){
@@ -85,7 +85,7 @@ void push_action(action_tile_t action){
     printf("Pushing in index: %li\n", stack_index);
     stack_action[stack_index] = action;
     stack_index = stack_index + 1;
-    if(stack_index > 200)
+    if(stack_index >= WIDTH * HEIGHT)
         stack_index = 0;
 }
 
